@@ -3,7 +3,6 @@ from .models import UserProfile, Appointment, BusinessHours, ReminderOption
 from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 
 

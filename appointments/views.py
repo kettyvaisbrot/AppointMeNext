@@ -1,28 +1,15 @@
-from django.http import Http404
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.http import Http404, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.contrib import messages 
-from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.contrib.auth import logout
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from .models import ReminderOption
-from django.http import JsonResponse
-from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegistrationForm, AppointmentForm, BusinessHoursForm, ReminderSettingsForm
-from django.views import View
-from reportlab.pdfgen import canvas
-from io import BytesIO
-from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from django import forms
 from .models import BusinessHours, Appointment,UserProfile
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-
 import logging
 
 logger = logging.getLogger(__name__)
