@@ -1,3 +1,18 @@
+"""
+This forms.py file contains Django forms that are crucial for user interaction and data management
+in our application.
+The RegistrationForm allows new users to register with additional information such as full name, email,
+phone number, user type, and business hours preferences.
+The LoginForm provides a way for existing users to log in using their username and password.
+The ReminderSettingsForm is used to manage reminder settings for user profiles,
+enabling users to receive notifications and reminders.
+The AppointmentForm facilitates the creation and updating of appointments with optional reminder settings,
+streamlining the appointment scheduling process.
+Lastly, the BusinessHoursForm is responsible for managing business hours preferences,
+ensuring accurate scheduling of appointments within specified operating hours.
+
+"""
+
 from django import forms
 from .models import UserProfile, Appointment, BusinessHours, ReminderOption
 from datetime import datetime
@@ -7,6 +22,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class RegistrationForm(UserCreationForm):
+    """
+    A form for registering new users with additional fields like full name, email, phone number, user type,
+    and business hours preferences.
+    """
+
     full_name = forms.CharField(max_length=100)  # Include the full_name field
     email = forms.EmailField()
     phone_number = forms.CharField(max_length=15)  # Include the phone_number field
@@ -49,16 +69,28 @@ class RegistrationForm(UserCreationForm):
 
 
 class LoginForm(forms.Form):
+    """
+    A form for logging in users with username and password fields.
+    """
+
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput())
 
 class ReminderSettingsForm(forms.ModelForm):
+    """
+    A form for managing reminder settings for user profiles.
+    """
+
     class Meta:
         model = UserProfile
         fields = ['receive_reminders', 'reminder_options']
 
         
 class AppointmentForm(forms.ModelForm):
+    """
+    A form for creating and updating appointments with optional reminder settings.
+    """
+
     send_reminder = forms.BooleanField(required=False)
     reminder_options = forms.ModelMultipleChoiceField(
         queryset=ReminderOption.objects.all(),
@@ -86,6 +118,10 @@ class AppointmentForm(forms.ModelForm):
 
 
 class BusinessHoursForm(forms.ModelForm):
+    """
+    A form for managing business hours preferences.
+    """
+
     class Meta:
         model = BusinessHours
         fields = ['monday_open_time', 'monday_close_time', 'tuesday_open_time', 'tuesday_close_time',

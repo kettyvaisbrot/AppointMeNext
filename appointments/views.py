@@ -1,3 +1,12 @@
+"""
+Views Module
+
+
+This module contains Django views for handling HTTP requests related to user authentication, appointment management,
+and owner dashboard functionalities.
+"""
+
+
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, get_user_model, logout
@@ -15,6 +24,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_available_hours(request):
+
+    """
+    Get available hours for a selected date via AJAX.
+
+    Retrieves available hours for the selected date from the BusinessHours model and returns them as JSON.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object containing the selected date.
+
+    Returns:
+        JsonResponse: JSON response with available hours for the selected date.
+        JsonResponse: JSON response with an error message for invalid requests.
+    """
+
     if request.method == 'GET' and request.is_ajax():
         selected_date = request.GET.get('selected_date')
         logger.info(f"Selected date: {selected_date}")
@@ -34,6 +57,21 @@ def get_available_hours(request):
 
 
 def is_valid_appointment_time(appointment_time, open_time, close_time):
+
+    """
+    Check if an appointment time is valid within business hours.
+
+    Validates if the appointment time falls within the specified open and close times.
+
+    Parameters:
+        appointment_time (datetime.time): The time of the appointment.
+        open_time (datetime.time): The opening time of business hours.
+        close_time (datetime.time): The closing time of business hours.
+
+    Returns:
+        bool: True if the appointment time is valid; False otherwise.
+    """
+
     # Extract time component from datetime objects
     appointment_time = appointment_time.time() if isinstance(appointment_time, datetime) else appointment_time
     open_time = open_time.time() if isinstance(open_time, datetime) else open_time
@@ -44,6 +82,23 @@ def is_valid_appointment_time(appointment_time, open_time, close_time):
 
 @login_required
 def save_reminder_settings(request, user_id, appointment_id):
+
+    """
+    Save reminder settings for a user's appointment.
+
+    Allows the user to configure and save reminder settings for their appointment.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+        user_id (int): The ID of the user.
+        appointment_id (int): The ID of the appointment.
+
+    Returns:
+        HttpResponse: Renders the reminder settings form.
+        HttpResponse: Renders the reminder settings form with errors.
+        HttpResponseRedirect: Redirects to the login page upon successful saving of reminder settings.
+    """
+
     user = get_object_or_404(UserProfile, pk=user_id)
     appointment = get_object_or_404(Appointment, pk=appointment_id)
 
@@ -63,16 +118,58 @@ def save_reminder_settings(request, user_id, appointment_id):
 
 
 def home(request):
+
+    """
+    Render the home page.
+
+    Renders the home page template.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Renders the home page.
+    """
+        
     return render(request, 'appointments/index.html')
 
 User = get_user_model()
 
 def logout_view(request):
+
+    """
+    Logout the user.
+
+    Logs out the currently authenticated user and redirects to the home page.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the home page after logout.
+    """
+        
     logout(request)
     return redirect('home')
 
 
 def register(request):
+
+    """
+    Register a new user.
+
+    Handles the registration process for new users. Validates the registration form data
+    and creates a new user account if the form is valid. Only allows one owner registration.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object containing the form data submitted by the user.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the login page upon successful registration.
+        HttpResponse: Renders the registration form if the request method is GET.
+        HttpResponse: Re-renders the registration form with validation errors if the form is invalid.
+    """
+        
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -132,6 +229,21 @@ def register(request):
 
 @login_required
 def dashboard(request):
+
+    """
+    Render the user dashboard.
+
+    Renders the dashboard page for authenticated users based on their user type.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Renders the user dashboard.
+        HttpResponseRedirect: Redirects to the login page if the user is not logged in.
+        HttpResponseRedirect: Redirects to the appropriate dashboard based on the user type.
+    """
+        
     user = request.user
 
     if user.user_type == 'customer':
@@ -206,6 +318,20 @@ def dashboard(request):
 
 
 def send_appointment_reminder(user, appointment):
+
+    """
+    Send an appointment reminder email.
+
+    Sends an email reminder for an upcoming appointment to the specified user.
+
+    Parameters:
+        user (UserProfile): The user profile.
+        appointment (Appointment): The appointment object.
+
+    Returns:
+        None
+    """
+        
     subject = 'Appointment Reminder'
     message = f'Your appointment is scheduled for {appointment.date_time}.'
     recipient_list = [user.email]
@@ -215,6 +341,20 @@ def send_appointment_reminder(user, appointment):
 
 @login_required
 def owner_dashboard(request):
+
+    """
+    Render the owner dashboard.
+
+    Renders the owner dashboard page with all appointments and business hours.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Renders the owner dashboard.
+        HttpResponseRedirect: Redirects to the home page if the user is not an owner.
+    """
+
     if request.user.user_type == 'owner':
         # Fetch all appointments for all users
         appointments = Appointment.objects.all()
@@ -246,6 +386,20 @@ def owner_dashboard(request):
 
 
 def cancel_appointment(request, appointment_id):
+    """
+    Cancel an appointment.
+
+    Cancels the specified appointment and sends a cancellation email to the customer.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+        appointment_id (int): The ID of the appointment to cancel.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the dashboard after cancellation.
+        Http404: Raises a 404 error if the appointment does not exist.
+    """
+        
     try:
         appointment = Appointment.objects.get(id=appointment_id)
     except Appointment.DoesNotExist:
@@ -286,6 +440,20 @@ def cancel_appointment(request, appointment_id):
 
 
 def send_appointment_cancellation_email(customer_email, appointment_details):
+
+    """
+    Send an appointment cancellation email.
+
+    Sends an email to the customer notifying them of the appointment cancellation.
+
+    Parameters:
+        customer_email (str): The email address of the customer.
+        appointment_details (dict): Details of the cancelled appointment.
+
+    Returns:
+        None
+    """
+        
     subject = 'Appointment Cancellation'
     
     # Include the appointment details in the context
@@ -305,6 +473,20 @@ def send_appointment_cancellation_email(customer_email, appointment_details):
 
 
 def login_view(request):
+
+    """
+    Handle user login.
+
+    Handles the user login process, authenticates the user, and redirects to the appropriate dashboard.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: Renders the login page.
+        HttpResponseRedirect: Redirects to the appropriate dashboard upon successful login.
+    """
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -337,6 +519,19 @@ def login_view(request):
 
 @login_required
 def get_appointments(request):
+
+    """
+    Get all appointments.
+
+    Retrieves all appointments and formats them as JSON.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response with a list of all appointments.
+    """
+
     # Fetch all appointments
     appointments = Appointment.objects.all()
 

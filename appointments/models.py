@@ -1,3 +1,17 @@
+"""
+This models.py file defines several Django models
+that are essential for managing user profiles, appointments, reminder options,
+and business hours in our application.
+The UserProfile model extends Django's AbstractUser model to include additional fields like full name,
+phone number, and user type (owner or customer).
+The ReminderOption model provides options for users to customize their reminder settings,
+while the Appointment model represents scheduled appointments, including date, time, and status.
+Lastly, the BusinessHours model manages the business operating hours for scheduling appointments efficiently.
+Together, these models form the core data structure of our application.
+"""
+
+
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta
@@ -9,6 +23,11 @@ from django.contrib.auth import get_user_model
 
 
 class UserProfile(AbstractUser):
+    """
+    Represents user profiles with additional fields like full name, email, phone number, reminder settings,
+    and user type (owner or customer).
+    """
+
     full_name = models.CharField(max_length=100)
     email = models.EmailField()
     phone_number = models.CharField(max_length=15)
@@ -28,6 +47,10 @@ class UserProfile(AbstractUser):
 
 
 class ReminderOption(models.Model):
+    """
+    Represents options for reminders that users can choose from.
+    """
+
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -36,6 +59,10 @@ class ReminderOption(models.Model):
 
 
 class Appointment(models.Model):
+    """
+    Represents appointments made by users.
+    """
+        
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer_appointments')
     date_time = models.DateTimeField()
     time = models.TimeField()
@@ -56,6 +83,10 @@ class Appointment(models.Model):
         ordering = ['date_time']
 
     def save(self, *args, **kwargs):
+        """
+        Overrides the save method to handle time zones and set default duration.
+        """
+
         if not self.date_time.tzinfo:
             tzinfo = pytz.timezone('Asia/Jerusalem')
             self.date_time = timezone.make_aware(self.date_time, tzinfo)
@@ -64,6 +95,9 @@ class Appointment(models.Model):
         super().save(*args, **kwargs)
 
     def is_past(self):
+        """
+        Checks if the appointment is in the past.
+        """
         now = timezone.now()
         return self.date_time < now
 
@@ -71,6 +105,9 @@ class Appointment(models.Model):
 User = get_user_model()
 
 class BusinessHours(models.Model):
+    """
+    Represents business hours for scheduling appointments.
+    """
     
     monday_open_time = models.TimeField(default='08:00')
     monday_close_time = models.TimeField(default='17:00')
@@ -94,6 +131,10 @@ class BusinessHours(models.Model):
     sunday_close_time = models.TimeField(default='17:00')
 
     def __str__(self):
+        """
+        Returns a string representation of business hours.
+        """
+
         business_hours_str = "\n".join(
             f"{day.capitalize()}: {self.get_open_hours(day)} - {self.get_close_hours(day)}"
             for day, _ in self.DAYS_OF_WEEK
@@ -101,18 +142,30 @@ class BusinessHours(models.Model):
         return f"Business Hours:\n{business_hours_str}"
 
     def get_open_hours(self, day_of_week):
+        """
+        Gets the open hours for a specific day.
+        """
+
         # Validate day_of_week
         if day_of_week.lower() not in [day[0] for day in self.DAYS_OF_WEEK]:
             raise ValidationError("Invalid day of the week for business hours.")
         return getattr(self, f"{day_of_week.lower()}_open_time")
 
     def get_close_hours(self, day_of_week):
+        """
+        Gets the close hours for a specific day.
+        """
+
         # Validate day_of_week
         if day_of_week.lower() not in [day[0] for day in self.DAYS_OF_WEEK]:
             raise ValidationError("Invalid day of the week for business hours.")
         return getattr(self, f"{day_of_week.lower()}_close_time")
 
     def clean(self):
+        """
+        Custom validation logic for ensuring close time is after open time for each day.
+        """
+                
         for day, _ in self.DAYS_OF_WEEK:
             open_time = getattr(self, f"{day.lower()}_open_time")
             close_time = getattr(self, f"{day.lower()}_close_time")
@@ -123,6 +176,10 @@ class BusinessHours(models.Model):
             
 
     def get_available_hours(self, selected_date):
+        """
+        Gets available hours for scheduling appointments on a selected date.
+        """
+
         # Get the day of the week for the selected date
         day_of_week = selected_date.strftime('%A').lower()
 
