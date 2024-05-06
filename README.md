@@ -34,8 +34,8 @@ Access the admin interface at http://127.0.0.1:8000/ to manage appointments, use
 Users can register, log in, and schedule/cancel appointments through the web interface.
 
 ## Built With
-Python - The programming language used.
-Django framework - Django is a high-level Python web framework that encourages rapid development, clean, pragmatic design, and follows the DRY (Don't Repeat Yourself) principle.
+[Python](https://www.python.org/downloads/) Ensure you have python installed.
+[Django framework](https://docs.djangoproject.com/en/5.0/topics/install/) Ensure you have Django installed.
 
 ## License
 This project is licensed under the MIT License.
