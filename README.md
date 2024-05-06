@@ -11,22 +11,22 @@ Reminders and alerts for appointments-will be added later.
 Administrative reports on appointments and activity-will be added later.
 
 ## Installation
-Clone the repository:
-git clone https://github.com/kettyvaisbrot/AppointMeNext1.git
-Navigate to the project directory:
-cd AppointMeNext1
+  1.Clone the repository:
+  `git clone https://github.com/kettyvaisbrot/AppointMeNext1.git
+  Navigate to the project directory:
+  cd AppointMeNext1`
 
-Install dependencies:
-pip install -r requirements.txt
+  2.Install dependencies:
+  `pip install -r requirements.txt`
 
-Apply database migrations:
-python manage.py migrate
+  3.Apply database migrations:
+  `python manage.py migrate`
 
-Create a superuser (for admin access):
-python manage.py createsuperuser
+  4.Create a superuser (for admin access):
+  `python manage.py createsuperuser`
 
-Run the development server:
-python manage.py runserver
+  5.Run the development server:
+  `python manage.py runserver`
 
 
 ## Usage
