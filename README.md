@@ -35,6 +35,7 @@ Users can register, log in, and schedule/cancel appointments through the web int
 
 ## Built With
 [Python](https://www.python.org/downloads/) Ensure you have python installed.
+
 [Django framework](https://docs.djangoproject.com/en/5.0/topics/install/) Ensure you have Django installed.
 
 ## License
